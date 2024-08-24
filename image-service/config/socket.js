@@ -1,6 +1,7 @@
 const { Server } = require('socket.io')
 const Image = require('../models/Image')
 const sharp = require('sharp')
+const jwt = require('jsonwebtoken')
 const fs = require('fs')
 const path = require('path')
 const removeFile = require('../util/removeFile')
@@ -21,10 +22,28 @@ const initializeSocket = (server) => {
             socket.on('transformImage', async (data) => {
                 try {
                     const jsonData = JSON.parse(data)
+                    console.log(jsonData)
 
-                    const { imageId, transformations } = jsonData
-                    socket.join(imageId)
-                    console.log(imageId, transformations)
+                    const { token, imageId, transformations } = jsonData
+
+                    let verifiedToken
+                    try {
+                        verifiedToken = jwt.verify(
+                            token,
+                            process.env.JWT_SECRET
+                        )
+                    } catch (err) {
+                        socket.emit('error', { message: 'Unauthorized' })
+
+                        return
+                    }
+
+                    if (!verifiedToken || !verifiedToken.userId) {
+                        socket.emit('error', { message: 'Unauthorized' })
+                        return
+                    }
+
+                    const requestedUser = verifiedToken.userId
 
                     // Apply the transformations (your existing code)
                     let imgToEdit = await Image.findById(imageId)
@@ -32,6 +51,19 @@ const initializeSocket = (server) => {
                         socket.emit('error', { message: 'Image not found' })
                         return
                     }
+
+                    if (
+                        imgToEdit.userId !== requestedUser &&
+                        !imgToEdit.allowedUsers.includes(requestedUser)
+                    ) {
+                        socket.emit('error', {
+                            message:
+                                'You do not have the required permissions to edit this image',
+                        })
+                        return
+                    }
+
+                    socket.join(imageId)
 
                     const filePath = path.resolve(imgToEdit.image)
                     let imgBuffer = fs.readFileSync(filePath)

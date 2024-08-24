@@ -3,6 +3,7 @@ const removeFile = require('../util/removeFile')
 const sharp = require('sharp')
 const fs = require('fs')
 const path = require('path')
+const jwt = require('jsonwebtoken')
 
 const getAllImages = async (req, res) => {
     try {
@@ -52,6 +53,42 @@ const getSingleImage = async (req, res) => {
         }
 
         // res.status(200).json(image)
+    } catch (err) {
+        res.status(500).json({ message: err.message })
+    }
+}
+
+const generateAccessLink = async (req, res) => {
+    try {
+        const { id } = req.params
+
+        if (!id) {
+            return res.status(404).json({ message: 'No ID Found' })
+        }
+
+        const { userId } = req.data
+
+        if (!userId) {
+            return res.status(400).json({ message: 'No User ID Found' })
+        }
+
+        const image = await Image.findById(id)
+
+        if (!image) {
+            return res.status(404).json({ message: 'No Image Found' })
+        }
+
+        if (image.userId !== userId) {
+            return res.status(403).json({ message: 'Unauthorized' })
+        }
+
+        console.log(image, userId)
+
+        const token = jwt.sign({ imageId: image._id }, process.env.JWT_SECRET)
+
+        const accessLink = `${process.env.HOST_URL}/${token}`
+
+        res.status(200).json({ accessLink })
     } catch (err) {
         res.status(500).json({ message: err.message })
     }
@@ -236,6 +273,7 @@ const deleteImage = async (req, res) => {
 module.exports = {
     getAllImages,
     getSingleImage,
+    generateAccessLink,
     editImage,
     uploadImage,
     deleteImage,

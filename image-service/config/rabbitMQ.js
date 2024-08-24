@@ -3,18 +3,73 @@ const Image = require('../models/Image')
 
 let channel
 
+const deny = () => {
+    channel.sendToQueue(
+        'ACCESS',
+        Buffer.from(
+            JSON.stringify({
+                message: 'denied',
+            })
+        )
+    )
+}
+
 const connectMQ = async () => {
     try {
         const amqpServer = process.env.AMQP_SERVER
         const connection = await amqp.connect(amqpServer)
         channel = await connection.createChannel()
-        channel.assertQueue('IMAGE')
+        channel.assertQueue('GRANTACCESS')
         console.log('RabbitMQ Connected - Image Service')
 
-        channel.consume('IMAGE', async (data) => {
-            console.log('Consuming order results')
-            const response = JSON.parse(data.content.toString())
-            console.log(response)
+        channel.consume('GRANTACCESS', async (data) => {
+            try {
+                console.log('Consuming order results')
+                const response = JSON.parse(data.content.toString())
+                console.log(response)
+
+                if (response.imageId && response.userId) {
+                    console.log('imageid, userid found')
+                    const image = await Image.findById(response.imageId)
+                    if (image) {
+                        if (
+                            !image.allowedUsers.includes(
+                                parseInt(response.userId)
+                            )
+                        ) {
+                            image.allowedUsers.push(response.userId)
+                            await image.save()
+                            channel.sendToQueue(
+                                'ACCESS',
+                                Buffer.from(
+                                    JSON.stringify({
+                                        message: 'granted',
+                                    })
+                                )
+                            )
+                        } else {
+                            channel.sendToQueue(
+                                'ACCESS',
+                                Buffer.from(
+                                    JSON.stringify({
+                                        message: 'already granted',
+                                    })
+                                )
+                            )
+                        }
+                    } else {
+                        console.log('no image found')
+                        deny()
+                    }
+                } else {
+                    deny()
+                    console.log('no imageId, userId found')
+                }
+            } catch (err) {
+                console.log(err)
+                process.exit(1)
+            }
+
             channel.ack(data)
         })
     } catch (err) {

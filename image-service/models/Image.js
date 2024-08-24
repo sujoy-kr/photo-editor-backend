@@ -15,6 +15,10 @@ const imageSchema = new mongoose.Schema(
             type: JSON,
             required: true,
         },
+        allowedUsers: {
+            type: [Number],
+            default: [],
+        },
     },
     {
         timestamps: true,
@@ -25,7 +29,9 @@ imageSchema.set('toJSON', {
     virtuals: true,
     versionKey: false,
     transform: function (doc, ret) {
-        delete ret.userId, delete ret._id
+        delete ret.userId
+        delete ret._id
+        delete ret.allowedUsers
     },
 })
 

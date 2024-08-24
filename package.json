@@ -5,8 +5,9 @@
   "scripts": {
     "start:user-service": "cd user-service && npm run dev",
     "start:image-service": "cd image-service && npm run dev",
+    "start:access-service": "cd access-service && npm run dev",
     "start:api-gateway": "cd api-gateway && npm run dev",
-    "all": "concurrently \"npm run start:user-service\" \"npm run start:image-service\" \"npm run start:api-gateway\""
+    "all": "concurrently \"npm run start:api-gateway\" \"npm run start:user-service\" \"npm run start:image-service\" \"npm run start:access-service\""
   },
   "keywords": [],
   "author": "",
