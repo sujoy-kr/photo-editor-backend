@@ -3,11 +3,12 @@ const Image = require('../models/Image')
 
 let channel
 
-const deny = () => {
+const deny = (userId) => {
     channel.sendToQueue(
         'ACCESS',
         Buffer.from(
             JSON.stringify({
+                userId,
                 message: 'denied',
             })
         )
@@ -43,6 +44,7 @@ const connectMQ = async () => {
                                 'ACCESS',
                                 Buffer.from(
                                     JSON.stringify({
+                                        userId: response.userId,
                                         message: 'granted',
                                     })
                                 )
@@ -52,6 +54,7 @@ const connectMQ = async () => {
                                 'ACCESS',
                                 Buffer.from(
                                     JSON.stringify({
+                                        userId: response.userId,
                                         message: 'already granted',
                                     })
                                 )
@@ -59,10 +62,10 @@ const connectMQ = async () => {
                         }
                     } else {
                         console.log('no image found')
-                        deny()
+                        deny(response.userId)
                     }
                 } else {
-                    deny()
+                    deny(response.userId)
                     console.log('no imageId, userId found')
                 }
             } catch (err) {

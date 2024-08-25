@@ -13,7 +13,20 @@ const connectMQ = async () => {
             console.log('Consuming Access Records')
 
             const response = JSON.parse(data.content.toString())
-            console.log(response)
+            console.log('inside access service', response)
+
+            if (response.userId && response.message) {
+                const messageToSend = `Your request to access has been ${response.message}`
+                channel.sendToQueue(
+                    'NOTIFY',
+                    Buffer.from(
+                        JSON.stringify({
+                            userId: response.userId,
+                            messageToSend,
+                        })
+                    )
+                )
+            }
 
             channel.ack(data)
         })

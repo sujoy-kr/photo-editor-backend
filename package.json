@@ -3,11 +3,12 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
+    "start:api-gateway": "cd api-gateway && npm run dev",
     "start:user-service": "cd user-service && npm run dev",
     "start:image-service": "cd image-service && npm run dev",
     "start:access-service": "cd access-service && npm run dev",
-    "start:api-gateway": "cd api-gateway && npm run dev",
-    "all": "concurrently \"npm run start:api-gateway\" \"npm run start:user-service\" \"npm run start:image-service\" \"npm run start:access-service\""
+    "start:notification-service": "cd notification-service && npm run dev",
+    "all": "concurrently \"npm run start:api-gateway\" \"npm run start:user-service\" \"npm run start:image-service\" \"npm run start:access-service\" \"npm run start:notification-service\""
   },
   "keywords": [],
   "author": "",

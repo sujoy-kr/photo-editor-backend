@@ -22,6 +22,14 @@ const connectMQ = async () => {
                     },
                 })
 
+                if (!result) {
+                    console.log('User not found:', message.userId)
+                    channel.ack(data)
+                    return
+                }
+
+                console.log(result)
+
                 const { password, createdAt, ...userInfo } = result
 
                 channel.sendToQueue(
