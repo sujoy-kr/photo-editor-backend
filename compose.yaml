@@ -6,7 +6,7 @@ services:
       - "3000:3000"
     environment:
       - PORT=3000
-      - DATABASE_URL=postgresql://postgres:postgres@localhost:5432/editing-user
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/editingUser?schema=public?connect_timeout=300
       - SALT_ROUND=15
       - JWT_SECRET=sujoykr
       - AMQP_SERVER=amqp://rabbitmq
@@ -15,18 +15,30 @@ services:
       - rabbitmq
     networks:
       - app_network
+    command: >
+      sh -c "npx prisma migrate deploy && npm run start"
+
 
   postgres:
-    image: postgres:latest
-    container_name: postgres
+    image: postgres:12
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: editing-user
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
     ports:
       - "5432:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - pg_data:/var/lib/postgresql/data
+    networks:
+      - app_network
+
+  pg-admin:
+    image: dpage/pgadmin4:6
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=admin@email.com
+      - PGADMIN_DEFAULT_PASSWORD=admin
+      - PGADMIN_LISTEN_PORT=5050
+    ports:
+      - "5050:5050"
     networks:
       - app_network
 
@@ -84,7 +96,7 @@ services:
       - "2000:2000"
     environment:
       - PORT=2000
-      - USER_SERVICE_URL=http://localhost:3000/
+      - USER_SERVICE_URL=http://user-service:3000/
       - IMAGE_SERVICE_URL=http://image-service:4000/
       - ACCESS_SERVICE_URL=http://access-service:5000/
     depends_on:
@@ -128,7 +140,7 @@ services:
 volumes:
   image-service-db-data:
   redis_data:
-  postgres_data:
+  pg_data:
 
 networks:
   app_network:
