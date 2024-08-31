@@ -1,5 +1,5 @@
 const prisma = require('../config/db')
-const bcrypt = require('bcrypt')
+const bcryptjs = require('bcryptjs')
 const jwt = require('jsonwebtoken')
 
 const { userValidator } = require('../util/userValidator')
@@ -62,10 +62,11 @@ const register = async (req, res) => {
         try {
             await userValidator.validateAsync({ email, password })
 
-            const hashedPass = await bcrypt.hash(
-                password,
+            const bcryptjsSalt = await bcryptjs.genSalt(
                 parseInt(process.env.SALT_ROUND, 10)
             )
+
+            const hashedPass = await bcryptjs.hash(password, bcryptjsSalt)
             await prisma.user.create({
                 data: { name, email, password: hashedPass },
             })
@@ -100,7 +101,10 @@ const login = async (req, res) => {
             })
 
             if (user) {
-                const checkPass = await bcrypt.compare(password, user.password)
+                const checkPass = await bcryptjs.compare(
+                    password,
+                    user.password
+                )
                 if (checkPass) {
                     const token = jwt.sign(
                         { userId: user.id },

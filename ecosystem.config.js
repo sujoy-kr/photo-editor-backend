@@ -39,7 +39,18 @@ module.exports = {
             script: './access-service/app.js',
             env: {
                 NODE_ENV: 'development',
-                PORT: 3000,
+                PORT: 5000,
+            },
+            env_production: {
+                NODE_ENV: 'production',
+            },
+        },
+        {
+            name: 'notification-service',
+            script: './notification-service/app.js',
+            env: {
+                NODE_ENV: 'development',
+                PORT: 6000,
             },
             env_production: {
                 NODE_ENV: 'production',
