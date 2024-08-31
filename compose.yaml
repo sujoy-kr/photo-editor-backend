@@ -49,7 +49,7 @@ services:
       - "4000:4000"
     environment:
       - PORT=4000
-      - HOST_URL=http://api-gateway:2000/api/access
+      - HOST_URL=http://localhost/api/access
       - DATABASE_URL=mongodb://image-service-db:27017/editing-image
       - JWT_SECRET=sujoykr
       - AMQP_SERVER=amqp://rabbitmq
@@ -86,6 +86,18 @@ services:
     volumes:
       - redis_data:/data
     restart: unless-stopped
+    networks:
+      - app_network
+
+  nginx:
+    build: ./nginx
+    container_name: nginx
+    ports:
+      - "80:80"
+    depends_on:
+      - user-service
+      - image-service
+      - access-service
     networks:
       - app_network
 
