@@ -1,20 +1,23 @@
-# Base image
 FROM node:18-alpine
 
-# Set the working directory inside the container
 WORKDIR /usr/src/app
 
-# Copy package.json and package-lock.json files
 COPY package*.json ./
 
-# Install dependencies
-RUN npm install --production
+RUN npm ci --only=production \
+    && npm cache clean --force \
+    && rm -rf /var/cache/apk/* /tmp/*
 
-# Copy the rest of the application code
 COPY . .
 
-# Expose the port
+RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+
+RUN mkdir -p uploads && chown -R appuser:appgroup uploads
+
+USER appuser
+
 EXPOSE 4000
 
-# Start the application
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 CMD curl -f http://localhost:4000/ || exit 1
+
 CMD ["npm", "start"]

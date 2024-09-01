@@ -1,23 +1,20 @@
-# Use the official Node.js image as the base image
 FROM node:18-alpine
 
-# Set the working directory in the container
 WORKDIR /usr/src/app
 
-# Copy package.json and package-lock.json (if available)
 COPY package*.json ./
 
-# Install dependencies
-RUN npm install
+RUN npm ci --only=production \
+    && npm cache clean --force \
+    && rm -rf /var/cache/apk/* /tmp/*
 
-# Copy the rest of the application code
 COPY . .
 
-# Generate Prisma Client
 RUN npx prisma generate
 
-# Expose the port the app runs on
 EXPOSE 3000
 
-# Command to run the application
-# CMD ["npm", "start"]
+RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+USER appuser
+
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 CMD curl -f http://localhost:3000/ || exit 1

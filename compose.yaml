@@ -1,3 +1,164 @@
+# services:
+#   user-service:
+#     build: ./user-service
+#     container_name: user-service
+#     ports:
+#       - "3000:3000"
+#     environment:
+#       - PORT=3000
+#       - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/editingUser?schema=public?connect_timeout=300
+#       - SALT_ROUND=15
+#       - JWT_SECRET=sujoykr
+#       - AMQP_SERVER=amqp://rabbitmq
+#     depends_on:
+#       - postgres
+#       - rabbitmq
+#     networks:
+#       - app_network
+#     command: >
+#       sh -c "npx prisma migrate deploy && npm run start"
+
+
+#   postgres:
+#     image: postgres:12
+#     environment:
+#       - POSTGRES_USER=postgres
+#       - POSTGRES_PASSWORD=postgres
+#     ports:
+#       - "5432:5432"
+#     volumes:
+#       - pg_data:/var/lib/postgresql/data
+#     networks:
+#       - app_network
+
+#   pg-admin:
+#     image: dpage/pgadmin4:6
+#     environment:
+#       - PGADMIN_DEFAULT_EMAIL=admin@email.com
+#       - PGADMIN_DEFAULT_PASSWORD=admin
+#       - PGADMIN_LISTEN_PORT=5050
+#     ports:
+#       - "5050:5050"
+#     networks:
+#       - app_network
+
+#   image-service:
+#     build: ./image-service
+#     container_name: image-service
+#     ports:
+#       - "4000:4000"
+#     environment:
+#       - PORT=4000
+#       - HOST_URL=http://localhost/api/access
+#       - DATABASE_URL=mongodb://image-service-db:27017/editing-image
+#       - JWT_SECRET=sujoykr
+#       - AMQP_SERVER=amqp://rabbitmq
+#     depends_on:
+#       - image-service-db
+#       - rabbitmq
+#     networks:
+#       - app_network
+
+#   image-service-db:
+#     image: mongo:6
+#     container_name: image-service-db
+#     ports:
+#       - "27017:27017"
+#     volumes:
+#       - image-service-db-data:/data/db
+#     networks:
+#       - app_network
+
+#   rabbitmq:
+#     image: rabbitmq:3-management
+#     container_name: rabbitmq
+#     ports:
+#       - "5672:5672"
+#       - "15672:15672"
+#     networks:
+#       - app_network
+
+#   redis:
+#     image: redis:latest
+#     container_name: redis
+#     ports:
+#       - "6379:6379"
+#     volumes:
+#       - redis_data:/data
+#     restart: unless-stopped
+#     networks:
+#       - app_network
+
+#   nginx:
+#     build: ./nginx
+#     container_name: nginx
+#     ports:
+#       - "80:80"
+#     depends_on:
+#       - user-service
+#       - image-service
+#       - access-service
+#     networks:
+#       - app_network
+
+#   api-gateway:
+#     build: ./api-gateway
+#     container_name: api-gateway
+#     ports:
+#       - "2000:2000"
+#     environment:
+#       - PORT=2000
+#       - USER_SERVICE_URL=http://user-service:3000/
+#       - IMAGE_SERVICE_URL=http://image-service:4000/
+#       - ACCESS_SERVICE_URL=http://access-service:5000/
+#     depends_on:
+#       - image-service
+#       - access-service
+#     networks:
+#       - app_network
+
+#   notification-service:
+#     build: ./notification-service
+#     container_name: notification-service
+#     ports:
+#       - "6000:6000"
+#     environment:
+#       - PORT=6000
+#       - AMQP_SERVER=amqp://rabbitmq
+#       - NODEMAILER_EMAIL=sujoykr9@gmail.com
+#       - NODEMAILER_PASS=osvk idgw lzvq oxzb
+#       - REDIS_HOST=redis
+#       - REDIS_PORT=6379
+#     depends_on:
+#       - redis
+#       - rabbitmq
+#     networks:
+#       - app_network
+
+#   access-service:
+#     build: ./access-service
+#     container_name: access-service
+#     ports:
+#       - "5000:5000"
+#     environment:
+#       - PORT=5000
+#       - JWT_SECRET=sujoykr
+#       - AMQP_SERVER=amqp://rabbitmq
+#     depends_on:
+#       - rabbitmq
+#     networks:
+#       - app_network
+
+# volumes:
+#   image-service-db-data:
+#   redis_data:
+#   pg_data:
+
+# networks:
+#   app_network:
+#     driver: bridge
+
+
 services:
   user-service:
     build: ./user-service
@@ -8,16 +169,27 @@ services:
       - PORT=3000
       - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/editingUser?schema=public?connect_timeout=300
       - SALT_ROUND=15
-      - JWT_SECRET=sujoykr
+      - JWT_SECRET_FILE=/run/secrets/jwt_secret
       - AMQP_SERVER=amqp://rabbitmq
+    secrets:
+      - jwt_secret
     depends_on:
       - postgres
       - rabbitmq
     networks:
       - app_network
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: "512M"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 1m
+      timeout: 10s
+      retries: 3
     command: >
       sh -c "npx prisma migrate deploy && npm run start"
-
 
   postgres:
     image: postgres:12
@@ -30,6 +202,11 @@ services:
       - pg_data:/var/lib/postgresql/data
     networks:
       - app_network
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: "256M"
 
   pg-admin:
     image: dpage/pgadmin4:6
@@ -41,6 +218,11 @@ services:
       - "5050:5050"
     networks:
       - app_network
+    deploy:
+      resources:
+        limits:
+          cpus: "0.25"
+          memory: "128M"
 
   image-service:
     build: ./image-service
@@ -51,13 +233,25 @@ services:
       - PORT=4000
       - HOST_URL=http://localhost/api/access
       - DATABASE_URL=mongodb://image-service-db:27017/editing-image
-      - JWT_SECRET=sujoykr
+      - JWT_SECRET_FILE=/run/secrets/jwt_secret
       - AMQP_SERVER=amqp://rabbitmq
+    secrets:
+      - jwt_secret
     depends_on:
       - image-service-db
       - rabbitmq
     networks:
       - app_network
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: "512M"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4000/health"]
+      interval: 1m
+      timeout: 10s
+      retries: 3
 
   image-service-db:
     image: mongo:6
@@ -68,6 +262,11 @@ services:
       - image-service-db-data:/data/db
     networks:
       - app_network
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: "256M"
 
   rabbitmq:
     image: rabbitmq:3-management
@@ -77,6 +276,16 @@ services:
       - "15672:15672"
     networks:
       - app_network
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: "256M"
+    healthcheck:
+      test: ["CMD", "rabbitmqctl", "status"]
+      interval: 1m
+      timeout: 10s
+      retries: 3
 
   redis:
     image: redis:latest
@@ -88,6 +297,16 @@ services:
     restart: unless-stopped
     networks:
       - app_network
+    deploy:
+      resources:
+        limits:
+          cpus: "0.25"
+          memory: "128M"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 1m
+      timeout: 10s
+      retries: 3
 
   nginx:
     build: ./nginx
@@ -100,6 +319,11 @@ services:
       - access-service
     networks:
       - app_network
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: "256M"
 
   api-gateway:
     build: ./api-gateway
@@ -116,6 +340,11 @@ services:
       - access-service
     networks:
       - app_network
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: "256M"
 
   notification-service:
     build: ./notification-service
@@ -125,15 +354,28 @@ services:
     environment:
       - PORT=6000
       - AMQP_SERVER=amqp://rabbitmq
-      - NODEMAILER_EMAIL=sujoykr9@gmail.com
-      - NODEMAILER_PASS=osvk idgw lzvq oxzb
+      - NODEMAILER_EMAIL_FILE=/run/secrets/nodemailer_email
+      - NODEMAILER_PASS_FILE=/run/secrets/nodemailer_pass
       - REDIS_HOST=redis
       - REDIS_PORT=6379
+    secrets:
+      - nodemailer_email
+      - nodemailer_pass
     depends_on:
       - redis
       - rabbitmq
     networks:
       - app_network
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: "256M"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:6000/health"]
+      interval: 1m
+      timeout: 10s
+      retries: 3
 
   access-service:
     build: ./access-service
@@ -142,17 +384,37 @@ services:
       - "5000:5000"
     environment:
       - PORT=5000
-      - JWT_SECRET=sujoykr
+      - JWT_SECRET_FILE=/run/secrets/jwt_secret
       - AMQP_SERVER=amqp://rabbitmq
+    secrets:
+      - jwt_secret
     depends_on:
       - rabbitmq
     networks:
       - app_network
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: "256M"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      interval: 1m
+      timeout: 10s
+      retries: 3
 
 volumes:
   image-service-db-data:
   redis_data:
   pg_data:
+
+secrets:
+  jwt_secret:
+    file: ./secrets/jwt_secret.txt
+  nodemailer_email:
+    file: ./secrets/nodemailer_email.txt
+  nodemailer_pass:
+    file: ./secrets/nodemailer_pass.txt
 
 networks:
   app_network:
