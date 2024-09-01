@@ -192,8 +192,8 @@ services:
     ports:
       - "8000:3000"
     environment:
-      - GF_SECURITY_ADMIN_PASSWORD=adminuser
-      - GF_SECURITY_ADMIN_USER=adminpass
+      - GF_SECURITY_ADMIN_USER=grafanauser
+      - GF_SECURITY_ADMIN_PASSWORD=grafanapass
       - GF_USERS_ALLOW_SIGN_UP=false
     volumes:
       - grafana_data:/var/lib/grafana
