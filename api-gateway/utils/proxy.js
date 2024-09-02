@@ -7,9 +7,17 @@ const setProxies = (app, services) => {
                 route,
                 createProxyMiddleware({
                     target,
+                    ws: true,
                     changeOrigin: true,
                     pathRewrite: {
                         [`^${route}`]: '',
+                    },
+                    onError: (err, req, res) => {
+                        console.error('Proxy error:', err)
+                        res.status(500).json({ message: 'Proxy error' })
+                    },
+                    onProxyReq: (proxyReq, req, res) => {
+                        console.log(`Proxying request to: ${target}${req.url}`)
                     },
                 })
             )

@@ -6,12 +6,10 @@ services:
       - "3000:3000"
     environment:
       - PORT=3000
-      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/editingUser?schema=public?connect_timeout=300
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/editingUser?schema=public&connect_timeout=300
       - SALT_ROUND=15
-      - JWT_SECRET_FILE=/run/secrets/jwt_secret
+      - JWT_SECRET=sujoykr
       - AMQP_SERVER=amqp://amqpuser:amqppassword@rabbitmq:5672
-    secrets:
-      - jwt_secret
     depends_on:
       postgres:
         condition: service_started
@@ -35,13 +33,13 @@ services:
     environment:
       - PORT=4000
       - HOST_URL=http://localhost/api/access
-      - DATABASE_URL=mongodb://image-service-db:27017/editing-image
-      - JWT_SECRET_FILE=/run/secrets/jwt_secret
+      - DATABASE_URL=mongodb://mongo:27017/editing-image
+      - JWT_SECRET=sujoykr
       - AMQP_SERVER=amqp://amqpuser:amqppassword@rabbitmq:5672
-    secrets:
-      - jwt_secret
+    volumes:
+      - img_uploads:/usr/src/app/uploads
     depends_on:
-      image-service-db:
+      mongo:
         condition: service_started
       rabbitmq:
         condition: service_healthy
@@ -61,13 +59,10 @@ services:
     environment:
       - PORT=6000
       - AMQP_SERVER=amqp://amqpuser:amqppassword@rabbitmq:5672
-      - NODEMAILER_EMAIL_FILE=/run/secrets/nodemailer_email
-      - NODEMAILER_PASS_FILE=/run/secrets/nodemailer_pass
+      - NODEMAILER_EMAIL=sujoykr9@gmail.com
+      - NODEMAILER_PASS=hzfw gyxy mlfu laza
       - REDIS_HOST=redis
       - REDIS_PORT=6379
-    secrets:
-      - nodemailer_email
-      - nodemailer_pass
     depends_on:
       user-service:
         condition: service_started
@@ -90,10 +85,8 @@ services:
       - "5000:5000"
     environment:
       - PORT=5000
-      - JWT_SECRET_FILE=/run/secrets/jwt_secret
+      - JWT_SECRET=sujoykr
       - AMQP_SERVER=amqp://amqpuser:amqppassword@rabbitmq:5672
-    secrets:
-      - jwt_secret
     depends_on:
       rabbitmq:
         condition: service_healthy
@@ -168,13 +161,13 @@ services:
           cpus: "0.25"
           memory: "128M"
 
-  image-service-db:
+  mongo:
     image: mongo:6
-    container_name: image-service-db
+    container_name: mongo
     ports:
       - "27017:27017"
     volumes:
-      - image-service-db-data:/data/db
+      - mongo_data:/data/db
     networks:
       - app_network
     deploy:
@@ -288,20 +281,13 @@ services:
           cpus: "0.2"
           memory: "256M"
 
-secrets:
-  jwt_secret:
-    file: ./secrets/jwt_secret.txt
-  nodemailer_email:
-    file: ./secrets/nodemailer_email.txt
-  nodemailer_pass:
-    file: ./secrets/nodemailer_pass.txt
-
 volumes:
-  image-service-db-data:
+  mongo_data:
   redis_data:
   pg_data:
   grafana_data:
   prom_data:
+  img_uploads:
 
 networks:
   app_network:

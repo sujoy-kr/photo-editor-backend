@@ -92,6 +92,7 @@ const register = async (req, res) => {
 
 const login = async (req, res) => {
     const { email, password } = req.body
+    console.log('req body', req.body)
     if (email && password) {
         try {
             const user = await prisma.user.findUnique({
@@ -121,6 +122,7 @@ const login = async (req, res) => {
                 })
             }
         } catch (err) {
+            console.log(err)
             res.status(500).json({ message: 'Email or password missing' })
         }
     } else {
