@@ -1,0 +1,30 @@
+# Node modules directory
+node_modules
+
+# Build output directories
+dist
+build
+
+# Logs
+*.log
+
+# Environment files
+.env
+
+# Version control
+.git
+.gitignore
+
+# Docker and system files
+Dockerfile
+docker-compose.yml
+.dockerignore
+*.swp
+*.swo
+.DS_Store
+
+# IDE/editor files
+.vscode/
+.idea/
+*.sublime-workspace
+*.sublime-project
