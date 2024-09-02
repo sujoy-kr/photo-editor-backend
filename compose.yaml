@@ -258,6 +258,8 @@ services:
           cpus: "0.5"
           memory: "256M"
 
+# add http://host.docker.internal:9090 as Prometheus connection string, 11159 as dashboard ID
+
   grafana:
     image: grafana/grafana
     container_name: grafana
