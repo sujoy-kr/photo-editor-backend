@@ -8,7 +8,7 @@ services:
       - PORT=3000
       - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/editingUser?schema=public&connect_timeout=300
       - SALT_ROUND=15
-      - JWT_SECRET=sujoykr
+      - JWT_SECRET=strongsecret
       - AMQP_SERVER=amqp://amqpuser:amqppassword@rabbitmq:5672
     depends_on:
       postgres:
@@ -34,7 +34,7 @@ services:
       - PORT=4000
       - HOST_URL=http://localhost/api/access
       - DATABASE_URL=mongodb://mongo:27017/editing-image
-      - JWT_SECRET=sujoykr
+      - JWT_SECRET=strongsecret
       - AMQP_SERVER=amqp://amqpuser:amqppassword@rabbitmq:5672
     volumes:
       - img_uploads:/usr/src/app/uploads
@@ -85,7 +85,7 @@ services:
       - "5000:5000"
     environment:
       - PORT=5000
-      - JWT_SECRET=sujoykr
+      - JWT_SECRET=strongsecret
       - AMQP_SERVER=amqp://amqpuser:amqppassword@rabbitmq:5672
     depends_on:
       rabbitmq:

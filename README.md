@@ -80,7 +80,7 @@ cd photo-editor-backend
     -   `PORT=4000`
     -   `HOST_URL=http://localhost/api/access`
     -   `DATABASE_URL=mongodb://image-service-db:27017/editing-image`
-    -   `JWT_SECRET=sujoykr`
+    -   `JWT_SECRET=strongsecret`
     -   `AMQP_SERVER=amqp://amqpuser:amqppassword@rabbitmq:5672`
 
 ### Notification Service
@@ -102,7 +102,7 @@ cd photo-editor-backend
 -   **Port**: 5000
 -   **Environment Variables**:
     -   `PORT=5000`
-    -   `JWT_SECRET=sujoykr`
+    -   `JWT_SECRET=strongsecret`
     -   `AMQP_SERVER=amqp://amqpuser:amqppassword@rabbitmq:5672`
 
 ### API Gateway
