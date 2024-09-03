@@ -6,7 +6,6 @@ This project is a microservices-based application that enables real-time collabo
 
 ## Table of Contents
 
--   [Overview](#overview)
 -   [Prerequisites](#prerequisites)
 -   [Getting Started](#getting-started)
 -   [Running the Application](#running-the-application)
