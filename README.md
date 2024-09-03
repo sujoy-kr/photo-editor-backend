@@ -12,7 +12,6 @@ This project is a microservices-based application that enables real-time collabo
 -   [Running the Application](#running-the-application)
 -   [Service Details](#service-details)
 -   [Service Routes](#service-routes)
--   [Communication Between Services](#communication-between-services)
 -   [Configuration](#configuration)
 -   [Security Considerations](#security-considerations)
 -   [Future Improvements](#future-improvements)
@@ -332,7 +331,7 @@ cd photo-editor-backend
         }
         ```
     -   **Response**:
-        -   **Content**: A downloadable file of the edited image.
+        -   **Content**: A downloadable file of the image.
 
 -   **GET /api/image/{id}**
 
@@ -414,10 +413,6 @@ cd photo-editor-backend
             -   **Already Granted**: User already has access.
             -   **Denied**: Access has been denied.
         -   Adds the JWT token user to the image access list if access is granted.
-
-## Communication Between Services
-
--   **RabbitMQ**: Services communicate asynchronously through RabbitMQ. For example, when an order is placed, the Order Service sends a message to the Notification Service to send a confirmation email.
 
 ## Security Considerations
 
