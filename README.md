@@ -362,7 +362,7 @@ cd photo-editor-backend
     -   **Response**:
         ```json
         {
-            "accessLink": "http://localhost/api/access/eyJhbGciOiJIUzI1NiIsInR5c... //rest of the JWT token"
+            "accessLink": "http://localhost/api/access/eyJhbGciOiJIUzI1NiIsInR5c... "
         }
         ```
 
