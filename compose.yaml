@@ -59,7 +59,7 @@ services:
     environment:
       - PORT=6000
       - AMQP_SERVER=amqp://amqpuser:amqppassword@rabbitmq:5672
-      - NODEMAILER_EMAIL=sujoykr9@gmail.com
+      - NODEMAILER_EMAIL=demo@gmail.com
       - NODEMAILER_PASS=hzfw gyxy mlfu laza
       - REDIS_HOST=redis
       - REDIS_PORT=6379

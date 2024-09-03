@@ -68,7 +68,7 @@ cd photo-editor-backend
     -   `PORT=3000`
     -   `DATABASE_URL=postgresql://postgres:postgres@postgres:5432/editingUser?schema=public?connect_timeout=300`
     -   `SALT_ROUND=15`
-    -   `JWT_SECRET=sujoykr`
+    -   `JWT_SECRET=strongsecret`
     -   `AMQP_SERVER=amqp://amqpuser:amqppassword@rabbitmq:5672`
 
 ### Image Service
@@ -224,7 +224,7 @@ cd photo-editor-backend
         ```json
         {
             "name": "Sujoy Karmakar",
-            "email": "sujoykr8@gmail.com"
+            "email": "demo@gmail.com"
         }
         ```
 
