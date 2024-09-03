@@ -176,6 +176,25 @@ services:
           cpus: "0.5"
           memory: "256M"
 
+  mongo-express:
+    image: mongo-express
+    container_name: mongo-express
+    ports:
+      - "8081:8081"
+    depends_on:
+      mongo:
+        condition: service_started
+    environment:
+      - ME_CONFIG_MONGODB_SERVER=mongo
+      - ME_CONFIG_MONGODB_PORT=27017
+    networks:
+      - app_network
+    deploy:
+      resources:
+        limits:
+          cpus: "0.25"
+          memory: "256M"
+
   rabbitmq:
     image: rabbitmq:3-management
     container_name: rabbitmq
