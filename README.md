@@ -435,4 +435,4 @@ cd photo-editor-backend
 
 ### Things That Don’t Work
 
--   **WebSocket Requests**: WebSocket connections are not functioning through Nginx or the API Gateway. They only work when connecting directly to the Image Service host (e.g., `ws://localhost:4000`).
+-   **WebSocket Requests Through Gateway**: WebSocket connections are not functioning through Nginx or the API Gateway. They only work when connecting directly to the Image Service host (e.g., `ws://localhost:4000`).
